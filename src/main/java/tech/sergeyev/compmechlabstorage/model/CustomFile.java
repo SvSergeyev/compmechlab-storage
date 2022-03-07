@@ -3,15 +3,10 @@ package tech.sergeyev.compmechlabstorage.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.ToString;
 
-import javax.persistence.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.UUID;
 
 @Entity
@@ -29,4 +24,11 @@ public class CustomFile {
 
     long size;
 
+    @Override
+    public String toString() {
+        return "CustomFile{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
