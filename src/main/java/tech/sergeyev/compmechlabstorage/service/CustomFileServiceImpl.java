@@ -1,5 +1,7 @@
 package tech.sergeyev.compmechlabstorage.service;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,13 +14,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomFileServiceImpl implements CustomFileService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CustomFileServiceImpl.class);
-    private final CustomFileRepository customFileRepository;
+    static final Logger LOGGER = LoggerFactory.getLogger(CustomFileServiceImpl.class);
+
+    final CustomFileRepository customFileRepository;
+
     @Value("${upload.path}")
     String uploadPath;
 
@@ -50,7 +54,6 @@ public class CustomFileServiceImpl implements CustomFileService {
 
     public void deleteById(UUID id) {
         LOGGER.info("File with id={} was delete", id);
-
         customFileRepository.deleteById(id);
     }
 
@@ -65,12 +68,7 @@ public class CustomFileServiceImpl implements CustomFileService {
 
     @Override
     public CustomFile getById(UUID id) {
-        return customFileRepository.getCustomFileById(id).orElseThrow();
-    }
-
-    @Override
-    public Boolean existsByName(String name) {
-        return customFileRepository.existsByName(name);
+        return customFileRepository.getCustomFileById(id).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -96,5 +94,10 @@ public class CustomFileServiceImpl implements CustomFileService {
             customFile.setSize(size);
             customFileRepository.save(customFile);
         }
+    }
+
+    public void deleteAll() {
+        LOGGER.info("All entities have been removed from the database");
+        customFileRepository.deleteAll();
     }
 }
