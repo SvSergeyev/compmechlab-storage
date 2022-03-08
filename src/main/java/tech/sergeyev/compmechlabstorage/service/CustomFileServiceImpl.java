@@ -10,8 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tech.sergeyev.compmechlabstorage.dao.CustomFileRepository;
 import tech.sergeyev.compmechlabstorage.model.CustomFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -20,9 +19,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomFileServiceImpl implements CustomFileService {
     static final Logger LOGGER = LoggerFactory.getLogger(CustomFileServiceImpl.class);
-
     final CustomFileRepository customFileRepository;
-
     @Value("${upload.path}")
     String uploadPath;
 
@@ -61,22 +58,22 @@ public class CustomFileServiceImpl implements CustomFileService {
         return customFileRepository.countAll();
     }
 
-    @Override
+
     public List<CustomFile> getAll() {
         return customFileRepository.findAll();
     }
 
-    @Override
+
     public CustomFile getById(UUID id) {
         return customFileRepository.getCustomFileById(id).orElseThrow(NoSuchElementException::new);
     }
 
-    @Override
+
     public Boolean existsByLocation(String location) {
         return customFileRepository.existsByLocation(location);
     }
 
-    @Override
+
     public void uploadFromDirectory(File file) {
         if (file != null) {
             UUID id = UUID.randomUUID();
