@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CustomFileService {
-    void uploadFromForm(MultipartFile file);
+//    void uploadFromForm(MultipartFile file);
+    void uploadFromForm(MultipartFile file, String uploadPath);
     void deleteById(UUID id);
     int countAll();
     List<CustomFile> getAll();

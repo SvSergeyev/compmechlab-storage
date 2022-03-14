@@ -11,16 +11,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.sergeyev.compmechlabstorage.model.CustomFile;
 import tech.sergeyev.compmechlabstorage.service.CustomFileServiceImpl;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -35,14 +44,15 @@ public class MainController {
     final static Logger LOGGER = LoggerFactory.getLogger(MainController.class);
     final CustomFileServiceImpl customFileService;
 
-    @Value("${upload.path}")
+//    @Value("${upload.path}")
+//    String uploadPath;
     String uploadPath;
 
     public MainController(CustomFileServiceImpl customFileService) {
         this.customFileService = customFileService;
     }
 
-    @PostConstruct
+//    @PostConstruct
     private void init() {
         File dir = new File(uploadPath);
         // Проверяем, не пуста ли папка хранилища. Если пуста - удаляем все из БД.
@@ -73,25 +83,53 @@ public class MainController {
         return "index";
     }
 
+//    @PostMapping()
+//    public String upload(@RequestParam("files") MultipartFile[] files,
+//                         Model model,
+//                         RedirectAttributes attributes) {
+//        LOGGER.info("Received a POST request to upload file(s)");
+//        File uploadDirectory = new File(uploadPath);
+//        if (!uploadDirectory.exists()) {
+//            uploadDirectory.mkdir();
+//            LOGGER.info("Directory created: {}", uploadDirectory);
+//        }
+//        for (MultipartFile file : files) {
+//            if (file.getOriginalFilename() != null && !file.getOriginalFilename().isEmpty()) {
+//                customFileService.uploadFromForm(file);
+//                List<CustomFile> allCustomFiles = customFileService.getAll();
+//                model.addAttribute("files", allCustomFiles);
+//                attributes.addFlashAttribute("success", true);
+//                attributes.addFlashAttribute("message", "File uploaded successfully");
+//            }
+//        }
+//        return "redirect:/";
+//    }
+
     @PostMapping()
-    public String upload(@RequestParam("files") MultipartFile[] files,
-                         Model model,
-                         RedirectAttributes attributes) {
-        LOGGER.info("Received a POST request to upload file(s)");
-        File uploadDirectory = new File(uploadPath);
-        if (!uploadDirectory.exists()) {
-            uploadDirectory.mkdir();
-            LOGGER.info("Directory created: {}", uploadDirectory);
-        }
-        for (MultipartFile file : files) {
-            if (file.getOriginalFilename() != null && !file.getOriginalFilename().isEmpty()) {
-                customFileService.uploadFromForm(file);
-                List<CustomFile> allCustomFiles = customFileService.getAll();
-                model.addAttribute("files", allCustomFiles);
-                attributes.addFlashAttribute("success", true);
-                attributes.addFlashAttribute("message", "File uploaded successfully");
-            }
-        }
+    public String/*ResponseEntity<?>*/ upload(@RequestParam("file") MultipartFile file,
+                                    HttpServletRequest request,
+                                    Model model) throws IOException {
+        LOGGER.info("Received a POST request to upload file");
+        uploadPath = request.getParameter("dest");
+
+
+//        String fileDownloadUri = ServletUriComponentsBuilder
+//                .fromCurrentContextPath()
+//                .path("/storage")
+//                .path(uploadPath)
+//                .toUriString();
+
+        customFileService.uploadFromForm(file, uploadPath);
+
+        List<CustomFile> allCustomFiles = customFileService.getAll();
+        model.addAttribute("files", allCustomFiles);
+
+//        return ResponseEntity.status(HttpStatus.OK).location(URI.create("http://localhost:8080/")).build();
+
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Location", "/");
+//        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+
         return "redirect:/";
     }
 

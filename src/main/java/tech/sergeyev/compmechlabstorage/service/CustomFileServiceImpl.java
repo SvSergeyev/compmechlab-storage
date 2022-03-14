@@ -6,13 +6,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tech.sergeyev.compmechlabstorage.dao.CustomFileRepository;
 import tech.sergeyev.compmechlabstorage.model.CustomFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,18 +33,52 @@ public class CustomFileServiceImpl implements CustomFileService {
         this.customFileRepository = customFileRepository;
     }
 
-    public void uploadFromForm(MultipartFile file) {
+//    public void uploadFromForm(MultipartFile file) {
+//        UUID id = UUID.randomUUID();
+//        String name = file.getOriginalFilename();
+//        long size = file.getSize();
+//        String uniqueFileName = id.toString() + name;
+//        String location = uploadPath + "\\" + uniqueFileName;
+//
+//        try {
+//            file.transferTo(new File(location));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        CustomFile uploadFile = new CustomFile();
+//        uploadFile.setId(id);
+//        uploadFile.setLocation(location);
+//
+//        uploadFile.setSize(size);
+//        uploadFile.setName(name);
+//        LOGGER.info("Save file to: {}", uploadFile.getLocation());
+//        customFileRepository.save(uploadFile);
+//    }
+
+    public void uploadFromForm(MultipartFile file, String uploadPath) {
+
         UUID id = UUID.randomUUID();
         String name = file.getOriginalFilename();
-        long size = file.getSize();
         String uniqueFileName = id.toString() + name;
-        String location = uploadPath + "\\" + uniqueFileName;
+
+        Path path = Paths.get(uploadPath + "\\" +  uniqueFileName);
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         try {
-            file.transferTo(new File(location));
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        long size = file.getSize();
+        String location = path.toString();
+
         CustomFile uploadFile = new CustomFile();
         uploadFile.setId(id);
         uploadFile.setLocation(location);

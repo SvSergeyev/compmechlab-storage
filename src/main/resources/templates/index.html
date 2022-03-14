@@ -18,9 +18,12 @@
             <form class="form-inline" method="POST" enctype="multipart/form-data">
                 <div class="input-group">
                     <div class="custom-file">
-
-                        <input class="form-control" type="file" name="files" id="formFileMultiple" multiple />
+                        <input class="form-control" type="file" name="file" id="formFileMultiple"/>
                     </div>
+
+                    <span class="input-group-text" id="basic-addon3">save to:</span>
+                    <input type="text" class="form-control" name="dest" aria-describedby="basic-addon3" value="C:\storage">
+
                     <div class="input-group-append">
                         <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Upload">
                     </div>
