@@ -42,7 +42,7 @@ public class MainController {
         this.customFileService = customFileService;
     }
 
-    @PostConstruct
+//    @PostConstruct
     private void init() {
         File dir = new File(uploadPath);
         // Проверяем, не пуста ли папка хранилища. Если пуста - удаляем все из БД.
